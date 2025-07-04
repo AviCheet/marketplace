@@ -1,4 +1,4 @@
-import { FaFacebookF, FaBell, FaEnvelope, FaUserCircle } from 'react-icons/fa'
+import { FaBell, FaEnvelope, FaUserCircle } from 'react-icons/fa'
 
 export default function Navbar() {
   return (
