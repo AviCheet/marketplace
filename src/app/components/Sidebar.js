@@ -108,6 +108,11 @@ export default function Sidebar() {
         alert('Image upload failed')
         return
       }
+
+      if (data) {
+        console.log('Image uploaded:', data)
+        alert('Image uploaded successfully.')
+      }
   
       image_url = supabase.storage
         .from('listing-images')
