@@ -69,6 +69,26 @@ export default function Sidebar() {
     return Object.keys(newErrors).length === 0
   }
 
+  const handleSearch = () => {
+    const trimmedSearch = searchTerm.trim().toLowerCase()
+    const matchedCategory = categories.find(cat =>
+      cat.toLowerCase().includes(trimmedSearch)
+    )
+  
+    if (matchedCategory) {
+      setActiveCategory(matchedCategory)
+      setActivePanel(matchedCategory)
+      setItemFormVisible(false)
+  
+      // Reset searchTerm so it doesn’t filter out results
+      setSearchTerm('')
+    } else {
+      alert("No matching category found.")
+    }
+  }
+  
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validate()) return
@@ -112,7 +132,7 @@ export default function Sidebar() {
     } else {
       const newListing = insertData[0]
   
-      // 🔸 Update local state to reflect new listing in sidebar
+      // Update local state to reflect new listing in sidebar
           const { data: refreshedListings, error: fetchError } = await supabase
           .from('listings')
           .select('*')
@@ -131,7 +151,7 @@ export default function Sidebar() {
       setActivePanel(newListing.category)
       setItemFormVisible(false)
   
-      // 🔸 Redirect to listing detail page
+      //  Redirect to listing detail page
       router.push(`/listing/${newListing.id}?category=${encodeURIComponent(newListing.category)}`)
     }
   }
@@ -208,12 +228,33 @@ export default function Sidebar() {
       <div className="flex-1 pt-6 px-12">
         <div className="mb-6">
           <h1 className="text-[30px] font-bold mb-3">{activePanel}</h1>
-          {!showCards && !isItemFormVisible && listingsByCategory[activeCategory] && (
+          {categories.includes(activePanel) && !isItemFormVisible && (
+  <div className="flex gap-2 items-center mb-4">
+    <div className="relative w-full max-w-2xl">
+      <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
+      <input
+        type="text"
+        placeholder="Search listings..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm"
+      />
+    </div>
+    <button  onClick={handleSearch}className="bg-black text-white px-4 py-2 rounded-md text-sm">
+      Search
+    </button>
+  </div>
+)}
+          {categories.includes(activePanel) && !isItemFormVisible && listingsByCategory[activeCategory] && (
+             
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-    {listingsByCategory[activeCategory]
-      .filter(listing =>
-        listing.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+    {
+      (listingsByCategory[activeCategory] || [])
+      .filter(listing => {
+        if (searchTerm.trim() === '') return true
+        return listing.title.toLowerCase().includes(searchTerm.toLowerCase())
+      })
+
       .map(listing => (
         <div key={listing.id} className="bg-white p-4 rounded-lg shadow">
           <img src={listing.image_url} className="w-full h-48 object-cover rounded mb-3" />
